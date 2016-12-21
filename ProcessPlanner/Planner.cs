@@ -44,10 +44,10 @@ namespace ProcessPlanner
             if (process.thisState == Process.ProcessState.WaitingChild)
             {
 
-                process.processChildFinishedEvent += (proc) =>
+                process.processChildFinishedEvent += (parent) =>
                 {
-                    waitingProcesses.Remove(proc);
-                    addProcess(proc);
+                    waitingProcesses.Remove(parent);
+                    addProcess(parent);
                 };
                 waitingProcesses.Add(process);
             }
@@ -73,6 +73,7 @@ namespace ProcessPlanner
                 this.processor.addProcess(processQueue.getTopElement());
             }
         }
+
         
         private bool isEnoughMemoryForProcess(Process candidate)
         {
@@ -91,21 +92,21 @@ namespace ProcessPlanner
             return everythingFitsMemory;
         }
 
-        public bool addProcess(Process p)
+        public bool addProcess(Process candidate)
         {
 
-            if (checkProcessTreeFitsMemory(p))
+            if (checkProcessTreeFitsMemory(candidate))
             {
                 incomingProcesses++;
-                for(int i = 0; i < p.accessModes.Count; i++)
+                for(int i = 0; i < candidate.accessModes.Count; i++)
                 {
-                    totalCalcTime += p.accessModes[i].Value;
+                    totalCalcTime += candidate.accessModes[i].Value;
                 }
-                processQueue.addElement(p, p.priority);
-                memory.allocateProcess(p);
-                for (int i = 0; i < p.childProcesses?.Count; i++)
+                processQueue.addElement(candidate, candidate.priority);
+                memory.allocateProcess(candidate);
+                for (int i = 0; i < candidate.childProcesses?.Count; i++)
                 {
-                    addProcess(p.childProcesses[i]);
+                    addProcess(candidate.childProcesses[i]);
                 }
                 if (processor.isFree() && !processQueue.isEmpty())
                 {
