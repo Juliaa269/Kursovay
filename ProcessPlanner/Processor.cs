@@ -9,12 +9,13 @@ namespace ProcessPlanner
     public delegate void processChildFinished(Process p);
     public class Process
     {
-        public enum AccessMode{
+        public enum Resources{
             Processor,
             Videocard,
             HardDrive,
             Audiocard
         }
+
         public enum ProcessState
         {
             Ready,
@@ -22,21 +23,23 @@ namespace ProcessPlanner
             WaitingResource,
             WaitingChild
         }
+
         public String name;
         public int priority;
-        int processCycleStage;
-        public List<KeyValuePair<AccessMode, int>> accessModes;
+        private int processCycleStage;
+        public List<KeyValuePair<Resources, int>> accessModes;
         public List<Process> childProcesses;
-        static Random rnd;
+        private static Random rnd;
         public ProcessState thisState;
         public int waitingForChild;
         public int memoryRequired;
         public processFinished processFinishedEvent;
-        bool wasOnProcessor = false;
+        private bool wasOnProcessor = false;
         public processChildFinished processChildFinishedEvent;
+
         public Process(String id, int priority, int cpuTimeNeeded, int memoryRequired)
         {
-            accessModes = new List<KeyValuePair<AccessMode, int>>();
+            accessModes = new List<KeyValuePair<Resources, int>>();
             childProcesses = new List<Process>();
             name = id;
             this.priority = priority;
@@ -46,16 +49,16 @@ namespace ProcessPlanner
             this.memoryRequired = memoryRequired;
             //accessModes.Add(new KeyValuePair<AccessMode, int>(AccessMode.Processor, cpuTimeNeeded));
         }
-        public void addAccessMode(AccessMode mode, int timeNeeded)
+        public void addAccessMode(Resources mode, int timeNeeded)
         {
-            accessModes.Add(new KeyValuePair<AccessMode, int>( mode, timeNeeded));
+            accessModes.Add(new KeyValuePair<Resources, int>( mode, timeNeeded));
         }
         public void nextAccessMode()
         {
             if(processCycleStage+1 < accessModes.Count)
             {
                 processCycleStage++;
-                if (accessModes[processCycleStage].Key != AccessMode.Processor)
+                if (accessModes[processCycleStage].Key != Resources.Processor)
                     thisState = ProcessState.WaitingResource;
             }
             else
@@ -92,7 +95,7 @@ namespace ProcessPlanner
             wasOnProcessor = true;
             int currentMode = processCycleStage;
             int newValue = accessModes[processCycleStage].Value + delta;
-            accessModes[processCycleStage] = new KeyValuePair<AccessMode, int>(accessModes[processCycleStage].Key,
+            accessModes[processCycleStage] = new KeyValuePair<Resources, int>(accessModes[processCycleStage].Key,
                 newValue);
             if (accessModes[processCycleStage].Value <= 0)
             {
@@ -109,7 +112,7 @@ namespace ProcessPlanner
         {
             return accessModes[processCycleStage].Value;
         }
-        public AccessMode getCurrentAccessMode()
+        public Resources getCurrentAccessMode()
         {
             return accessModes[processCycleStage].Key;
         }
@@ -140,8 +143,9 @@ namespace ProcessPlanner
         Process currentProcess;
         public processFinished processFinishedEvent;
         public int processorFreeTime;
-        bool newProcessStarted;
-        int speed;
+        private bool newProcessStarted;
+        private int speed;
+
         public Processor(int speed = 200)
         {
             processorFreeTime = 0;

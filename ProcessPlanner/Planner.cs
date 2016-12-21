@@ -55,14 +55,14 @@ namespace ProcessPlanner
             {
                 if (process.getAccessModeTimeRemain() > 0)
                 {
-                    Process.AccessMode a;
+                    Process.Resources a;
                     switch (a = process.getCurrentAccessMode())
                     {
-                        case Process.AccessMode.Videocard:
+                        case Process.Resources.Videocard:
                             videoCard.addProcess(process);
                             executedOnGPU++;
                             break;
-                        case Process.AccessMode.Processor:
+                        case Process.Resources.Processor:
                             processor.addProcess(process);
                             break;
                     }
@@ -74,15 +74,20 @@ namespace ProcessPlanner
             }
         }
         
+        private bool isEnoughMemoryForProcess(Process candidate)
+        {
+            return memory.findMemoryRegion(memory.pagesRequiredForProcess(candidate)) != -1;
+        }
         
         private bool checkProcessTreeFitsMemory(Process p)
         {
             bool everythingFitsMemory = true;
-            everythingFitsMemory &= memory.findMemoryRegion(memory.pagesRequiredForProcess(p)) != -1;
-            for(int i = 0; i < p.childProcesses.Count; i++)
+            everythingFitsMemory &= isEnoughMemoryForProcess(p);
+            foreach(Process child in p.childProcesses) 
             {
-                everythingFitsMemory &= checkProcessTreeFitsMemory(p.childProcesses[i]);
+                everythingFitsMemory &= isEnoughMemoryForProcess(child);
             }
+
             return everythingFitsMemory;
         }
 

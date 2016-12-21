@@ -64,7 +64,7 @@ namespace ProcessPlanner
                 if (random.NextDouble() > 0.8) // 0.2 * 0.3 = 0.06
                 {
                     Process processWithVideoCardUsage = createRegularProcess();
-                    processWithVideoCardUsage.addAccessMode(Process.AccessMode.Videocard, getRandomExecutionTime());
+                    processWithVideoCardUsage.addAccessMode(Process.Resources.Videocard, getRandomExecutionTime());
                     planner.addChildProcess(regularProcess, processWithVideoCardUsage);
                 }
                 planner.addProcess(regularProcess);
@@ -82,7 +82,7 @@ namespace ProcessPlanner
         private Process createRegularProcess(int executionTime, int priority, int requiredMemory)
         {
             Process process = new Process(Process.generateName(), executionTime, priority, requiredMemory);
-            process.addAccessMode(Process.AccessMode.Processor, executionTime);
+            process.addAccessMode(Process.Resources.Processor, executionTime);
             return process;
         }
 
