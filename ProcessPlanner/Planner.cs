@@ -10,11 +10,13 @@ namespace ProcessPlanner
         private Processor processor;
         private PriorityQueue<Process> processQueue;
         private List<Process> waitingProcesses;
-        public int statTotalProcessees = 0;
-        public int statTotalFinished = 0;
+        
         private ResourceQueue videoCard;
         public processFinished processFinishedEvent;
         private Memory memory;
+
+        public int statTotalProcessees = 0;
+        public int statTotalFinished = 0;
 
         private int incomingProcesses = 0;
         private int finishedProcesses = 0;
@@ -22,7 +24,18 @@ namespace ProcessPlanner
         private int executedOnGPU = 0;
         private int totalCalcTime = 0;
 
-        void plan(Process process)
+        public Planner(ref Processor processor, ref ResourceQueue videoCard)
+        {
+            memory = new Memory(500, 32);
+            this.videoCard = videoCard;
+            processQueue = new PriorityQueue<Process>();
+            waitingProcesses = new List<Process>();
+            this.processor = processor;
+            processor.processFinishedEvent += plan;
+            videoCard.processFinishedEvent += plan;
+        }
+
+        private void plan(Process process)
         {
             MainForm.instance.setStatisticsGlobal(String.Format("Incoming: {0}\nFinished: {1}\nRejected: {2}\nGPU: {3}\nTotal time: {4}\nAverage time: {5}",
                 incomingProcesses, finishedProcesses, rejectedOnMemoryAlloc, executedOnGPU,totalCalcTime, totalCalcTime/(1+incomingProcesses)));
@@ -61,16 +74,7 @@ namespace ProcessPlanner
             }
         }
         
-        public Planner(ref Processor processor, ref ResourceQueue videoCard)
-        {
-            memory = new Memory(500, 32);
-            this.videoCard = videoCard;
-            processQueue = new PriorityQueue<Process>();
-            waitingProcesses = new List<Process>();
-            this.processor = processor;
-            processor.processFinishedEvent += plan;
-            videoCard.processFinishedEvent += plan;
-        }
+        
         private bool checkProcessTreeFitsMemory(Process p)
         {
             bool everythingFitsMemory = true;
@@ -81,6 +85,7 @@ namespace ProcessPlanner
             }
             return everythingFitsMemory;
         }
+
         public bool addProcess(Process p)
         {
 
@@ -106,6 +111,7 @@ namespace ProcessPlanner
             rejectedOnMemoryAlloc++;
             return false;
         }
+
         public List<Process> getArray()
         {
             List<Process> l = new List<Process>();
@@ -118,6 +124,7 @@ namespace ProcessPlanner
             }
             return l;
         }
+
         public void addChildProcess(Process parent, Process child)
         {
             child.processChildFinishedEvent += (Process proc) =>
