@@ -17,12 +17,12 @@ namespace ProcessPlanner
         private static Random random = new Random();
         private List<Process> currentProcesses;
         public static MainForm instance;
-        
+
 
         public MainForm()
         {
             InitializeComponent();
-            planner = new Planner(ref processor, ref videocardQueue); 
+            planner = new Planner(ref processor, ref videocardQueue);
             planner.processFinishedEvent += (p) => {
                 for (int i = 0; i < currentProcesses.Count; i++)
                     if (currentProcesses[i].getHash() == p.getHash())
@@ -39,44 +39,51 @@ namespace ProcessPlanner
         private void updateQueueListBox()
         {
             queueListBox.Items.Clear();
-            foreach(Process p in planner.getArray())
+            foreach (Process p in planner.getArray())
             {
                 queueListBox.Items.Add(p.ToString());
             }
         }
-        
+
         static double distributionFunction(double val)
         {
-            return 1.0 / (1 + Math.Pow(Math.E, -6 * val + 3)); 
+            return 1.0 / (1 + Math.Pow(Math.E, -6 * val + 3));
         }
-        
-        int getRandomExecutionTime()         {
+
+        int getRandomExecutionTime() {
             double a = random.NextDouble();
             return ((int)(a / distributionFunction(a) * 1000)) / 2 + 1;
         }
-        
+
         private void processorTactModelTimer_Tick(object sender, EventArgs e)
         {
-            if (random.NextDouble() > 0.7 ) 
-            {  
-                int a = getRandomExecutionTime();
-                Process newProcess = new Process(Process.generateName(), a, a, random.Next(100, 1000));
-                newProcess.addAccessMode(Process.AccessMode.Processor, a);
-                if (random.NextDouble() > 0.8)
+            if (random.NextDouble() > 0.7)  // 0.3
+            {
+                Process regularProcess = createRegularProcess();
+
+                if (random.NextDouble() > 0.8) // 0.2 * 0.3 = 0.06
                 {
-                    a = getRandomExecutionTime();
-                    Process p = new Process(Process.generateName(), a, a, random.Next(100, 1000));
-                    p.addAccessMode(Process.AccessMode.Processor, a);
-                    p.addAccessMode(Process.AccessMode.Videocard, getRandomExecutionTime());
-                    planner.addChildProcess(newProcess, p);
-
+                    Process processWithVideoCardUsage = createRegularProcess();
+                    processWithVideoCardUsage.addAccessMode(Process.AccessMode.Videocard, getRandomExecutionTime());
+                    planner.addChildProcess(regularProcess, processWithVideoCardUsage);
                 }
-                planner.addProcess(newProcess);
-
+                planner.addProcess(regularProcess);
                 updateQueueListBox();
             }
             processor.nextTick();
             videocardQueue.nextTick();
+        }
+
+        private Process createRegularProcess()
+        {
+            return createRegularProcess(getRandomExecutionTime(), random.Next(0, 100), random.Next(100, 100));
+        }
+
+        private Process createRegularProcess(int executionTime, int priority, int requiredMemory)
+        {
+            Process process = new Process(Process.generateName(), executionTime, priority, requiredMemory);
+            process.addAccessMode(Process.AccessMode.Processor, executionTime);
+            return process;
         }
 
         private void startExperimentButton_Click(object sender, EventArgs e)
