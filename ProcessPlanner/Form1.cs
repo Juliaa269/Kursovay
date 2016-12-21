@@ -11,12 +11,14 @@ namespace ProcessPlanner
 {
     public partial class MainForm : Form
     {
-        Processor processor = new Processor(50);
-        ResourceQueue videocardQueue = new ResourceQueue(ResourseType.Videocard, 200);
-        Planner planner;
-        static Random r = new Random();
-        List<Process> currentProcesses;
-        void updateQueueListBox()
+        private Processor processor = new Processor(50);
+        private ResourceQueue videocardQueue = new ResourceQueue(ResourseType.Videocard, 200);
+        private Planner planner;
+        private static Random r = new Random();
+        private List<Process> currentProcesses;
+        public static MainForm instance;
+
+        private void updateQueueListBox()
         {
             queueListBox.Items.Clear();
             foreach(Process p in planner.getArray())
@@ -24,7 +26,7 @@ namespace ProcessPlanner
                 queueListBox.Items.Add(p.ToString());
             }
         }
-        public static MainForm instance;
+       
         public MainForm()
         {
             InitializeComponent();
@@ -41,22 +43,7 @@ namespace ProcessPlanner
             currentProcesses = new List<Process>();
             instance = this;
         }
-        public void setProcessStats(Process p)
-        {
-            currentProcessorStateLabel.Text = p.ToString();
-        }
-        public void setVideoCardStats(Process p)
-        {
-            currentVideocardStateLabel.Text = p.ToString();
-        }
-        public void setStatisticsGlobal(string s)
-        {
-            statisticsLabel.Text = s;
-        }
-        public void setMemoryInfo(string text)
-        {
-            currentMemoryStateLabel.Text = text;
-        }
+        
         static Func<double, double> distributionFunction = (val) =>
         {
             return 1.0 / (1 + Math.Pow(Math.E, -6 * val + 3)); 
@@ -115,6 +102,22 @@ namespace ProcessPlanner
         private void stopExperimentButton_Click(object sender, EventArgs e)
         {
             processorTactModelTimer.Stop();
+        }
+        public void setProcessStats(Process p)
+        {
+            currentProcessorStateLabel.Text = p.ToString();
+        }
+        public void setVideoCardStats(Process p)
+        {
+            currentVideocardStateLabel.Text = p.ToString();
+        }
+        public void setStatisticsGlobal(string s)
+        {
+            statisticsLabel.Text = s;
+        }
+        public void setMemoryInfo(string text)
+        {
+            currentMemoryStateLabel.Text = text;
         }
     }
 }
