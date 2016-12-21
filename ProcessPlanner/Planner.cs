@@ -7,19 +7,21 @@ namespace ProcessPlanner
 {
     class Planner
     {
-        Processor processor;
-        PriorityQueue<Process> processQueue;
-        List<Process> waitingProcesses;
-        public int statTotalProcessees = 0,
-                   statTotalFinished = 0;
-        ResourceQueue videoCard;
+        private Processor processor;
+        private PriorityQueue<Process> processQueue;
+        private List<Process> waitingProcesses;
+        public int statTotalProcessees = 0;
+        public int statTotalFinished = 0;
+        private ResourceQueue videoCard;
         public processFinished processFinishedEvent;
-        Memory memory;
-        int incomingProcesses = 0,
-            finishedProcesses = 0,
-            rejectedOnMemoryAlloc = 0,
-            executedOnGPU = 0,
-            totalCalcTime = 0;
+        private Memory memory;
+
+        private int incomingProcesses = 0;
+        private int finishedProcesses = 0;
+        private int rejectedOnMemoryAlloc = 0;
+        private int executedOnGPU = 0;
+        private int totalCalcTime = 0;
+
         void plan(Process process)
         {
             MainForm.instance.setStatisticsGlobal(String.Format("Incoming: {0}\nFinished: {1}\nRejected: {2}\nGPU: {3}\nTotal time: {4}\nAverage time: {5}",

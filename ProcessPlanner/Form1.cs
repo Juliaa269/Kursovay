@@ -19,22 +19,13 @@ namespace ProcessPlanner
         public static MainForm instance;
         private bool generate = true;
 
-        private void updateQueueListBox()
-        {
-            queueListBox.Items.Clear();
-            foreach(Process p in planner.getArray())
-            {
-                queueListBox.Items.Add(p.ToString());
-            }
-        }
-       
         public MainForm()
         {
             InitializeComponent();
-            planner = new Planner(ref processor, ref videocardQueue);
-            planner.processFinishedEvent += (p)=> {
-                for(int i = 0; i < currentProcesses.Count; i++)
-                    if(currentProcesses[i].getHash() == p.getHash())
+            planner = new Planner(ref processor, ref videocardQueue); 
+            planner.processFinishedEvent += (p) => {
+                for (int i = 0; i < currentProcesses.Count; i++)
+                    if (currentProcesses[i].getHash() == p.getHash())
                     {
                         currentProcesses.RemoveAt(i);
                         break;
@@ -43,6 +34,15 @@ namespace ProcessPlanner
             };
             currentProcesses = new List<Process>();
             instance = this;
+        }
+
+        private void updateQueueListBox()
+        {
+            queueListBox.Items.Clear();
+            foreach(Process p in planner.getArray())
+            {
+                queueListBox.Items.Add(p.ToString());
+            }
         }
         
         static Func<double, double> distributionFunction = (val) =>
