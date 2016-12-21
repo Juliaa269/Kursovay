@@ -14,10 +14,10 @@ namespace ProcessPlanner
         private Processor processor = new Processor(50);
         private ResourceQueue videocardQueue = new ResourceQueue(ResourseType.Videocard, 200);
         private Planner planner;
-        private static Random r = new Random();
+        private static Random random = new Random();
         private List<Process> currentProcesses;
         public static MainForm instance;
-        private bool generate = true;
+        
 
         public MainForm()
         {
@@ -45,29 +45,27 @@ namespace ProcessPlanner
             }
         }
         
-        static Func<double, double> distributionFunction = (val) =>
+        static double distributionFunction(double val)
         {
             return 1.0 / (1 + Math.Pow(Math.E, -6 * val + 3)); 
-        };
+        }
         
-        Func<int> getRandomExecutionTime = () =>
-        {
-            double a = r.NextDouble();
+        int getRandomExecutionTime()         {
+            double a = random.NextDouble();
             return ((int)(a / distributionFunction(a) * 1000)) / 2 + 1;
-        };
+        }
         
         private void processorTactModelTimer_Tick(object sender, EventArgs e)
         {
-            if (r.NextDouble() > 0.7 && generate)
-            {
-                //generate = false;
+            if (random.NextDouble() > 0.7 ) 
+            {  
                 int a = getRandomExecutionTime();
-                Process newProcess = new Process(Process.generateName(), a, a, r.Next(100, 1000));
+                Process newProcess = new Process(Process.generateName(), a, a, random.Next(100, 1000));
                 newProcess.addAccessMode(Process.AccessMode.Processor, a);
-                if (r.NextDouble() > 0.8)
+                if (random.NextDouble() > 0.8)
                 {
                     a = getRandomExecutionTime();
-                    Process p = new Process(Process.generateName(), a, a, r.Next(100, 1000));
+                    Process p = new Process(Process.generateName(), a, a, random.Next(100, 1000));
                     p.addAccessMode(Process.AccessMode.Processor, a);
                     p.addAccessMode(Process.AccessMode.Videocard, getRandomExecutionTime());
                     planner.addChildProcess(newProcess, p);
