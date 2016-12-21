@@ -17,6 +17,7 @@ namespace ProcessPlanner
         private static Random r = new Random();
         private List<Process> currentProcesses;
         public static MainForm instance;
+        private bool generate = true;
 
         private void updateQueueListBox()
         {
@@ -54,8 +55,7 @@ namespace ProcessPlanner
             double a = r.NextDouble();
             return ((int)(a / distributionFunction(a) * 1000)) / 2 + 1;
         };
-        bool generate = true;
-        int counter = 0;
+        
         private void processorTactModelTimer_Tick(object sender, EventArgs e)
         {
             if (r.NextDouble() > 0.7 && generate)
